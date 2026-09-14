@@ -1,0 +1,42 @@
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadbLibrar
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb:/var/lib/mysql
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: 1234
+      MARIADB_DATABASE: admin
+      MARIADB_USER: admin
+      MARIADB_PASSWORD: 1234
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backendLibrar
+    ports:
+      - "8080:8080"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  frontend:
+      build:
+        context: ./frontend
+        dockerfile: Dockerfile
+      container_name: frontendLibrar
+      ports:
+        - "5173:5173"
+      depends_on:
+        - backend
+volumes:
+  mariadb:
