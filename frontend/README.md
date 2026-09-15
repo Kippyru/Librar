@@ -1,15 +1,12 @@
-# React + TypeScript + Vite
+# React + TypeScript + Vite + AntD
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+para correr la app usa ```npm run dev```
 
-Currently, two official plugins are available:
+### links utiles
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+https://ant.design/docs/react/introduce
+https://ant.design/
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
 ## Expanding the Oxlint configuration
 
