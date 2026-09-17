@@ -27,8 +27,9 @@ public class User {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-    @Column(name = "sucursal_id")
-    private Long sucursalId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sucursal_id") // una sucursal es obligatoria para un empleado? si es asi hay que agregar el nullable
+    private Sucursal sucursalId;
 
     private Boolean active;
 }
