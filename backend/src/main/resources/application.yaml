@@ -3,7 +3,7 @@ spring:
     name: Librar
 
   datasource:
-    url: jdbc:mariadb://mariadb:3306/Librar
+    url: jdbc:mariadb://mariadb:3306/librarDB
     username: admin
     password: 1234
     driver-class-name: org.mariadb.jdbc.Driver
