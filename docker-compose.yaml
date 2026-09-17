@@ -9,7 +9,7 @@ services:
     restart: always
     environment:
       MARIADB_ROOT_PASSWORD: 1234
-      MARIADB_DATABASE: admin
+      MARIADB_DATABASE: librarDB
       MARIADB_USER: admin
       MARIADB_PASSWORD: 1234
     healthcheck:
@@ -29,14 +29,14 @@ services:
       mariadb:
         condition: service_healthy
 
-  frontend:
-      build:
-        context: ./frontend
-        dockerfile: Dockerfile
-      container_name: frontendLibrar
-      ports:
-        - "5173:5173"
-      depends_on:
-        - backend
+  #frontend:
+  #    build:
+  #      context: ./frontend
+  #      dockerfile: Dockerfile
+  #    container_name: frontendLibrar
+  #    ports:
+  #      - "5173:5173"
+  #    depends_on:
+  #      - backend
 volumes:
   mariadb:
