@@ -3,9 +3,7 @@ package com.dsf.librar.mapper;
 import com.dsf.librar.dto.CategoryRequestDto;
 import com.dsf.librar.dto.CategoryResponseDto;
 import com.dsf.librar.entity.Category;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -19,6 +17,7 @@ public interface CategoryMapper {
 
     CategoryResponseDto toDto(Category category);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", ignore = true)
     @Mapping(target = "description", ignore = true)
