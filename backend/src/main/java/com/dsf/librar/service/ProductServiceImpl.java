@@ -1,6 +1,9 @@
 package com.dsf.librar.service;
 
+import com.dsf.librar.dto.ProductRequestDto;
+import com.dsf.librar.dto.ProductResponseDto;
 import com.dsf.librar.entity.Product;
+import com.dsf.librar.mapper.ProductMapper;
 import com.dsf.librar.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
@@ -18,6 +21,7 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
 
     @Override
     public void importExcel(MultipartFile file) {
@@ -75,4 +79,43 @@ public class ProductServiceImpl implements ProductService {
         if (cell == null || cell.getCellType() != CellType.NUMERIC) return 0.0;
         return cell.getNumericCellValue();
     }
+
+    @Override
+    public void createProduct(ProductRequestDto productRequestDto) {
+        Product product = productMapper.toEntity(productRequestDto);
+        productRepository.save(product);
+    }
+
+    @Override
+    public List<ProductResponseDto> listProducts() {
+        return productMapper.listProduct(productRepository.findAll());
+    }
+
+    @Override
+    public ProductResponseDto getProductById(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        return productMapper.toDto(product);
+    }
+
+    @Override
+    public void updateProduct(Long id, ProductRequestDto productRequestDto) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        productMapper.updateProduct(productRequestDto, product);
+    }
+
+    @Override
+    public void deleteProduct(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+        product.setActive(false);
+        productRepository.save(product);
+    }
+
+    @Override
+    public void restoreProducts(Long id) {
+        productRepository.restoreById(id);
+    }
+
 }
