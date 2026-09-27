@@ -3,9 +3,7 @@ package com.dsf.librar.mapper;
 import com.dsf.librar.dto.SupplierRequestDto;
 import com.dsf.librar.dto.SupplierResponseDto;
 import com.dsf.librar.entity.Supplier;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -18,6 +16,7 @@ public interface SupplierMapper {
 
     SupplierResponseDto toDto(Supplier supplier);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", ignore = true)
     @Mapping(target = "cellphone", ignore = true)
