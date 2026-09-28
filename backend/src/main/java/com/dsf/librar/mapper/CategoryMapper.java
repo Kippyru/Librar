@@ -19,8 +19,6 @@ public interface CategoryMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "name", ignore = true)
-    @Mapping(target = "description", ignore = true)
     @Mapping(target = "active", ignore = true)
     void updateCategory(CategoryRequestDto dto, @MappingTarget Category category);
 

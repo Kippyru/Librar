@@ -18,11 +18,6 @@ public interface SupplierMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "name", ignore = true)
-    @Mapping(target = "cellphone", ignore = true)
-    @Mapping(target = "phone", ignore = true)
-    @Mapping(target = "email", ignore = true)
-    @Mapping(target = "note", ignore = true)
     @Mapping(target = "active", ignore = true)
     void updateSupplier(SupplierRequestDto dto, @MappingTarget Supplier supplier);
 
