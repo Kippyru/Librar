@@ -19,8 +19,8 @@ public class ProductResponseDto {
     private BigDecimal purchasePrice;
     private BigDecimal sellingPrice;
     private Integer minimumStock;
-    private Category category;
-    private Supplier supplier;
+    private Long category;
+    private Long supplier;
     private String imagenUrl;
     private Boolean active;
 }
