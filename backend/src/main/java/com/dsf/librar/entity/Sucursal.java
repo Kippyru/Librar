@@ -23,5 +23,6 @@ public class Sucursal {
     private String address;
     private String phone;
 
-    private Boolean active;
+    @Column(nullable = false)
+    private Boolean active = true;
 }
