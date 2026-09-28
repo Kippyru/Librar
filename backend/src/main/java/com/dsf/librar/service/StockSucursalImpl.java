@@ -11,7 +11,6 @@ import com.dsf.librar.repository.StockSucursalRepository;
 import com.dsf.librar.repository.SucursalRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +23,6 @@ public class StockSucursalImpl implements StockSucursalService {
     private final ProductRepository productRepository;
     private final SucursalRepository sucursalRepository;
     private final StockSucursalMapper stockSucursalMapper;
-
-    //valor de stock bajo, esta en el application como variable
-    @Value("${stock.low-stock}")
-    private Integer lowStockThreshold;
 
     @Override
     @Transactional
@@ -102,22 +97,17 @@ public class StockSucursalImpl implements StockSucursalService {
     @Override
     @Transactional
     public List<StockSucursalResponseDto> findLowStock() {
-
         List<StockSucursal> stocks =
-                stockSucursalRepository.findByAmountLessThanEqual(
-                        lowStockThreshold
-                );
+                stockSucursalRepository.findLowStock();
 
         return stockSucursalMapper.listStockSucursal(stocks);
     }
 
     @Scheduled(fixedRate = 60000)
+    @Transactional
     public void checkLowStock() {
-
         List<StockSucursal> stocks =
-                stockSucursalRepository.findByAmountLessThanEqual(
-                        lowStockThreshold
-                );
+                stockSucursalRepository.findLowStock();
 
         for (StockSucursal stock : stocks) {
             System.out.println(
@@ -127,6 +117,8 @@ public class StockSucursalImpl implements StockSucursalService {
                             + stock.getSucursal().getId()
                             + " | Cantidad: "
                             + stock.getAmount()
+                            + " | Mínimo: "
+                            + stock.getProduct().getMinimumStock()
             );
         }
     }
