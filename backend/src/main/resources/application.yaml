@@ -14,13 +14,10 @@ spring:
         format_sql: true
     show-sql: true
 
-stock:
-  low-stock: 5
-
 security:
   jwt:
-    secret-key: ${JWT_SECRET_KEY:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
-    expiration-time: ${JWT_EXPIRATION:86400000}
+    secret-key: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+    expiration-time: 86400000
 app:
   cors:
-    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+    allowed-origins: http://localhost:5173
