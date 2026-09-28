@@ -25,10 +25,10 @@ public class ProductRequestDto {
     private Integer minimumStock;
 
     @NotNull(message = "La categoria es obligatoria")
-    private Category category;
+    private Long category;
 
     @NotNull(message = "El proveedor es obligatorio")
-    private Supplier supplier;
+    private Long supplier;
 
     private String imagenUrl;
 }
