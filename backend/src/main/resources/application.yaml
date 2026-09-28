@@ -15,7 +15,7 @@ spring:
     show-sql: true
 
 stock:
-  low-stock: ${5}
+  low-stock: 5
 
 security:
   jwt:
