@@ -47,6 +47,15 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductResponseDto>> search(
+            @RequestParam String q) {
+
+        return ResponseEntity.ok(
+                productService.search(q)
+        );
+    }
+
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDto productRequestDto) {
         productService.updateProduct(id, productRequestDto);

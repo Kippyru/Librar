@@ -117,6 +117,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    public List<ProductResponseDto> search(String query) {
+        List<Product> products =
+                productRepository.search(query);
+
+        return productMapper.listProduct(products);
+    }
+
+    @Override
+    @Transactional
     public void updateProduct(Long id, ProductRequestDto dto) {
 
         Product product = productRepository.findById(id)
