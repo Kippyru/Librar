@@ -48,6 +48,7 @@ public class SecurityConfig {
                         //whenever an error occurs, it will show regardless of permits
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN") // requires admin role
+                        .requestMatchers("/api/product", "/api/product/update/**", "/api/product/delete/**", "/api/product/restore/**").hasRole("ADMIN")
                         .anyRequest().authenticated() // any other route requires being logged in
                 )
                 // configuring session management, so the state is not saved (remains STATELESS as uh... plasma, yes...)
