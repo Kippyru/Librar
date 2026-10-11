@@ -7,9 +7,13 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Repository
 public interface CashMovementRepository extends JpaRepository<CashMovement, Long> {
+
+    //added to find by ID
+    List<CashMovement> findByCashRegisterId(Long cashRegisterId);
     @Query(value = """
         SELECT
             COALESCE(SUM(
