@@ -41,6 +41,9 @@ const HomePage = () => {
                 <Button type="primary" size="large" onClick={() => navigate('/register')}>
                     Registrar Nuevo Empleado
                 </Button>
+                <Button size="large" onClick={() => navigate('/caja')}>
+                    Gestión de Caja
+                </Button>
             </Space>
 
         </div>

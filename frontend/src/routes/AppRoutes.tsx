@@ -5,8 +5,9 @@ import HomePage from '../pages/Home/HomePage';
 import ProductsPage from '../pages/Products/ProductsPage';
 import StockPage from '../pages/Stock/StockPage';
 import { RegisterPage } from '../pages/Auth/RegisterPage';
+// 1. Importa la página de la caja
+import CashPage from '../pages/Cash/CashPage';
 
-// 404 test
 const NotFound = () => <h2>404 - Página no encontrada</h2>;
 
 export const router = createBrowserRouter([
@@ -24,7 +25,7 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        path: '/', // root route
+        path: '/',
         element: <HomePage />,
       },
       {
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
       {
         path: '/stock',
         element: <StockPage />,
+      },
+      {
+        path: '/caja',
+        element: <CashPage />,
       },
     ],
   },
