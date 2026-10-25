@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
     Alert,
     Button,
@@ -16,10 +16,11 @@ import {
     Table,
     Tag,
     Typography,
+    type InputRef,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { DeleteOutlined, PlusOutlined, ShoppingCartOutlined } from '@ant-design/icons';
-import {posService,type Product,type SaleRequest,} from '../../services/POSService';
+import { posService, type Product, type SaleRequest, } from '../../services/POSService';
 import { userService, type UserResponse } from "../../services/userService";
 import { cashRegisterService, type CashRegisterResponse } from "../../services/CashRegisterService";
 
@@ -53,6 +54,13 @@ const POSPage = () => {
     const [loadingContext, setLoadingContext] = useState(true);
     const [contextError, setContextError] = useState<string | null>(null);
     const [submittingSale, setSubmittingSale] = useState(false);
+    //ete es para el barcode search
+    const searchInputRef = useRef<InputRef>(null);
+
+    //y ete para enfocar el imput cuando se pone el pos
+    useEffect(() => {
+        searchInputRef.current?.focus();
+    }, []);
 
     const total = useMemo(
         () =>
@@ -64,15 +72,17 @@ const POSPage = () => {
         [cart],
     );
 
-    const searchProducts = async (value: string) => {
+    const searchProducts = async (value: string): Promise<Product[]> => {
         setLoadingProducts(true);
 
         try {
             const result = await posService.searchProducts(value);
             setProducts(result);
+            return result;
         } catch (error) {
             console.error(error);
             message.error('Error al buscar productos.');
+            return [];
         } finally {
             setLoadingProducts(false);
         }
@@ -100,6 +110,35 @@ const POSPage = () => {
         });
 
         message.success(`${product.name} agregado al carrito.`);
+    };
+
+    const handleSearch = async (value: string) => {
+        const normalizedQuery = value.trim();
+
+        if (!normalizedQuery) {
+            await searchProducts('');
+            searchInputRef.current?.focus();
+            return;
+        }
+
+        setQuery(normalizedQuery);
+
+        const result = await searchProducts(normalizedQuery);
+
+        //el lector puede devolver el código seguido de Enter, pero no tengo lector pos asi que nu she si va a andar
+        //pero si anda solo se agrega si encontra el barcode exacto
+        const exactMatch = result.find(
+            (product) => product.barcode.trim() === normalizedQuery,
+        );
+
+        if (exactMatch) {
+            addToCart(exactMatch);
+        } else if (result.length === 0) {
+            message.warning('No se encontraron productos.');
+        }
+
+        //dejamos listo el buscador para el prox escaneo
+        searchInputRef.current?.focus();
     };
 
     const updateQuantity = (productId: number, quantity: number | null) => {
@@ -315,12 +354,13 @@ const POSPage = () => {
                 <Col xs={24} xl={14}>
                     <Card title="Buscar productos">
                         <Search
+                            ref={searchInputRef}
                             placeholder="Nombre o código de barras..."
                             allowClear
                             enterButton="Buscar"
                             value={query}
                             onChange={(event) => setQuery(event.target.value)}
-                            onSearch={(value) => void searchProducts(value)}
+                            onSearch={(value) => void handleSearch(value)}
                             loading={loadingProducts}
                         />
 
