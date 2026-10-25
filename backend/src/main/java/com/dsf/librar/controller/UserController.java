@@ -33,6 +33,11 @@ public class UserController {
         return userService.listUserId(id);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDto> getMe() {
+        return ResponseEntity.ok(userService.getMe());
+    }
+
     @PutMapping("/update/{id}")
     public ResponseEntity<String> updateUser(@PathVariable Long id,
                                              @Valid @RequestBody UserRequestDto userRequestDto) {
