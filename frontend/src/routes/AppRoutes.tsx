@@ -5,8 +5,8 @@ import HomePage from '../pages/Home/HomePage';
 import ProductsPage from '../pages/Products/ProductsPage';
 import StockPage from '../pages/Stock/StockPage';
 import { RegisterPage } from '../pages/Auth/RegisterPage';
-// 1. Importa la página de la caja
 import CashPage from '../pages/Cash/CashPage';
+import POSPage from '../pages/POS/POSPage';
 
 const NotFound = () => <h2>404 - Página no encontrada</h2>;
 
@@ -39,6 +39,10 @@ export const router = createBrowserRouter([
       {
         path: '/caja',
         element: <CashPage />,
+      },
+      {
+        path: '/pos',
+        element: <POSPage />,
       },
     ],
   },
