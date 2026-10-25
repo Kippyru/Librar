@@ -44,6 +44,10 @@ const HomePage = () => {
                 <Button size="large" onClick={() => navigate('/caja')}>
                     Gestión de Caja
                 </Button>
+
+                <Button size="large" onClick={() => navigate('/pos')}>
+                    POS
+                </Button>
             </Space>
 
         </div>
