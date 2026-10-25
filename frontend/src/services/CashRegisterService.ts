@@ -1,44 +1,78 @@
 import { axiosClient } from './axiosClient';
 
+export type CashRegisterStatus = 'OPEN' | 'CLOSED';
+
+export interface CashRegisterResponse {
+    id: number;
+    sucursalId: number;
+    userId: number;
+    openingAmount: number;
+    closingAmount: number | null;
+    expectedAmount: number | null;
+    difference: number | null;
+    openedAt: string;
+    closedAt: string | null;
+    status: CashRegisterStatus;
+    notes: string | null;
+}
+
 export const cashRegisterService = {
+    // Get the open register of a sucursal
+    getCurrent: async (
+        sucursalId: number
+    ): Promise<CashRegisterResponse> => {
+        const response = await axiosClient.get<CashRegisterResponse>(
+            '/api/cashregister/current',
+            { params: { sucursalId } }
+        );
 
-    // get the open register of a sucursal
-    getCurrent: async (sucursalId) => {
-        const response = await axiosClient.get(`/api/cashregister/current`, {
-            params: { sucursalId: sucursalId } // Axios lo convierte automáticamente a ?sucursalId=X
-        });
         return response.data;
     },
 
-    // open a Register
-    open: async (sucursalId, requestData) => {
-        const response = await axiosClient.post(`/api/cashregister/open`, requestData, {
-            params: { sucursalId: sucursalId }
-        });
+    // Open a register
+    open: async (sucursalId: number, requestData: unknown) => {
+        const response = await axiosClient.post(
+            '/api/cashregister/open',
+            requestData,
+            { params: { sucursalId } }
+        );
         return response.data;
     },
 
-    // get the current arqueo/conteo of the running Register
-    count: async (cashRegisterId) => {
-        const response = await axiosClient.get(`/api/cashregister/${cashRegisterId}/count`);
+    // Get the current count
+    count: async (cashRegisterId: number) => {
+        const response = await axiosClient.get(
+            `/api/cashregister/${cashRegisterId}/count`
+        );
         return response.data;
     },
 
-    // close the Register
-    close: async (cashRegisterId, requestData) => {
-        const response = await axiosClient.post(`/api/cashregister/${cashRegisterId}/close`, requestData);
+    // Close the register
+    close: async (cashRegisterId: number, requestData: unknown) => {
+        const response = await axiosClient.post(
+            `/api/cashregister/${cashRegisterId}/close`,
+            requestData
+        );
         return response.data;
     },
 
-    // manually register a new enter/exit movement
-    registerMovement: async (cashRegisterId, requestData) => {
-        const response = await axiosClient.post(`/api/cash-registers/${cashRegisterId}/movements`, requestData);
+    // Register a movement
+    registerMovement: async (
+        cashRegisterId: number,
+        requestData: unknown
+    ) => {
+        const response = await axiosClient.post(
+            `/api/cash-registers/${cashRegisterId}/movements`,
+            requestData
+        );
         return response.data;
     },
 
-    // list the whole history of movements of the Register
-    getMovements: async (cashRegisterId) => {
-        const response = await axiosClient.get(`/api/cash-registers/${cashRegisterId}/movements`);
+    // List register movements
+    getMovements: async (cashRegisterId: number) => {
+        const response = await axiosClient.get(
+            `/api/cash-registers/${cashRegisterId}/movements`
+        );
         return response.data;
-    }
+    },
 };
