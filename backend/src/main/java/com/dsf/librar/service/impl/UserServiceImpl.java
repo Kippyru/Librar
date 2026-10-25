@@ -4,13 +4,16 @@ import com.dsf.librar.dto.request.RegisterRequestDto;
 import com.dsf.librar.dto.request.UserRequestDto;
 import com.dsf.librar.dto.response.UserResponseDto;
 import com.dsf.librar.entity.Role;
+import com.dsf.librar.entity.Sucursal;
 import com.dsf.librar.entity.User;
 import com.dsf.librar.mapper.UserMapper;
 import com.dsf.librar.repository.RoleRepository;
+import com.dsf.librar.repository.SucursalRepository;
 import com.dsf.librar.repository.UserRepository;
 import com.dsf.librar.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,17 +27,27 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SucursalRepository sucursalRepository;
 
     @Override
     public void createUser(UserRequestDto userRequestDto) {
-        Role role = roleRepository.findById(userRequestDto.getRole())
+        Role role = roleRepository.findById(userRequestDto.role())
                 .orElseThrow(() -> new RuntimeException("Role not found"));
         User user = userMapper.toEntity(userRequestDto);
         //step over the plain text password with the encrypted version of the password
-        user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+        user.setPassword(passwordEncoder.encode(userRequestDto.password()));
 
         user.setRole(role);
-        user.setSucursal(null);
+
+        if (userRequestDto.sucursal() != null) {
+            Sucursal sucursal = sucursalRepository.findById(userRequestDto.sucursal())
+                    .orElseThrow(() -> new RuntimeException("Sucursal not found"));
+
+            user.setSucursal(sucursal);
+        } else {
+            user.setSucursal(null);
+        }
+
         user.setActive(true);
 
         userRepository.save(user);
@@ -74,19 +87,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserResponseDto getMe() {
+        String username = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return userMapper.toDto(user);
+    }
+
+    @Override
     public UserResponseDto editUser(Long id, UserRequestDto userRequestDto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         userMapper.updateUser(userRequestDto, user);
-        if (userRequestDto.getPassword() != null && !userRequestDto.getPassword().isBlank()) {
+        if (userRequestDto.password() != null && !userRequestDto.password().isBlank()) {
             // this line would make the passwords plain text instead of saving them encrypted
             // user.setPassword(userRequestDto.getPassword());
 
             //so now we encode the password before saving it in the DB
-            user.setPassword(passwordEncoder.encode(userRequestDto.getPassword()));
+            user.setPassword(passwordEncoder.encode(userRequestDto.password()));
         }
-        if (userRequestDto.getRole() != null) {
-            Role role = roleRepository.findById(userRequestDto.getRole())
+        if (userRequestDto.role() != null) {
+            Role role = roleRepository.findById(userRequestDto.role())
                     .orElseThrow(() -> new RuntimeException("Role not found"));
             user.setRole(role);
         }
