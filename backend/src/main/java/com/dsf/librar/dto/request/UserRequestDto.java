@@ -2,23 +2,19 @@ package com.dsf.librar.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class UserRequestDto {
-    @NotBlank(message = "El nombre de usuario no puede estar vacío")
-    private String username;
+public record UserRequestDto(
+        @NotBlank(message = "El nombre de usuario no puede estar vacío")
+        String username,
 
-    @NotBlank(message = "Nombre completo necesario")
-    private String completeName;
+        @NotBlank(message = "Nombre completo necesario")
+        String completeName,
 
-    @NotBlank(message = "La contraseña no puede estar vacío")
-    private String password;
+        @NotBlank(message = "La contraseña no puede estar vacía")
+        String password,
 
-    @NotNull(message = "El rol es obligatorio")
-    private Long role;
-}
+        @NotNull(message = "El rol es obligatorio")
+        Long role,
+
+        Long sucursal
+) {}
