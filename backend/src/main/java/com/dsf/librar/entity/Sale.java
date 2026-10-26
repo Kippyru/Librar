@@ -57,4 +57,15 @@ public class Sale {
         details.add(detail);
         detail.setSale(this);
     }
+    @OneToMany(
+            mappedBy = "sale",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<SalePayment> payments = new ArrayList<>();
+
+    public void addPayment(SalePayment payment) {
+        payments.add(payment);
+        payment.setSale(this);
+    }
 }

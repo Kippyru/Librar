@@ -8,6 +8,8 @@ public record CashRegisterCountResponseDto(
         BigDecimal cashOut,
         BigDecimal expectedAmount,
         BigDecimal actualAmount,
-        BigDecimal difference
-) {
-}
+        BigDecimal difference,
+        BigDecimal salesCash,
+        BigDecimal salesTransfer,
+        BigDecimal salesCard
+) {}

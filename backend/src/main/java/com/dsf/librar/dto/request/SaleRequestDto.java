@@ -19,6 +19,10 @@ public record SaleRequestDto(
 
         @NotEmpty
         @Valid
-        List<SaleDetailRequestDto> details
+        List<SaleDetailRequestDto> details,
+
+        @NotEmpty(message = "Debe registrar al menos un pago")
+        @Valid
+        List<SalePaymentRequestDto> payments
 ) {
 }

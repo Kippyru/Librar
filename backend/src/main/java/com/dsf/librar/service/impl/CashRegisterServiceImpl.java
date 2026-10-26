@@ -9,10 +9,7 @@ import com.dsf.librar.entity.Sucursal;
 import com.dsf.librar.entity.User;
 import com.dsf.librar.enums.CashRegisterStatus;
 import com.dsf.librar.mapper.CashRegisterMapper;
-import com.dsf.librar.repository.CashMovementRepository;
-import com.dsf.librar.repository.CashRegisterRepository;
-import com.dsf.librar.repository.SucursalRepository;
-import com.dsf.librar.repository.UserRepository;
+import com.dsf.librar.repository.*;
 import com.dsf.librar.service.CashRegisterService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +29,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     private final CashRegisterMapper cashRegisterMapper;
     private final UserRepository userRepository;
     private final SucursalRepository sucursalRepository;
+    private final SalePaymentRepository salePaymentRepository;
 
     @Override
     public CashRegisterResponseDto open(Long sucursalId, CashRegisterOpenRequestDto request) {
@@ -148,13 +146,15 @@ public class CashRegisterServiceImpl implements CashRegisterService {
                 .orElseThrow(() -> new IllegalArgumentException("Caja no encontrada"));
     }
 
-    private CashRegisterCountResponseDto calculateCount(
-            CashRegister cashRegister) {
+    private CashRegisterCountResponseDto calculateCount(CashRegister cashRegister) {
+        CashMovementRepository.CashMovementTotals movementTotals =
+                cashMovementRepository.calculateTotals(cashRegister.getId());
 
-        CashMovementRepository.CashMovementTotals totals = cashMovementRepository.calculateTotals(cashRegister.getId());
+        SalePaymentRepository.SalePaymentTotals salesTotals =
+                salePaymentRepository.calculateSalesTotals(cashRegister.getId());
 
-        BigDecimal cashIn = totals.getCashIn();
-        BigDecimal cashOut = totals.getCashOut();
+        BigDecimal cashIn = movementTotals.getCashIn();
+        BigDecimal cashOut = movementTotals.getCashOut();
 
         BigDecimal expectedAmount = cashRegister.getOpeningAmount()
                 .add(cashIn)
@@ -172,7 +172,10 @@ public class CashRegisterServiceImpl implements CashRegisterService {
                 cashOut,
                 expectedAmount,
                 actualAmount,
-                difference
+                difference,
+                salesTotals.getSalesCash(),
+                salesTotals.getSalesTransfer(),
+                salesTotals.getSalesCard()
         );
     }
 }
