@@ -20,14 +20,12 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { DeleteOutlined, PlusOutlined, ShoppingCartOutlined } from '@ant-design/icons';
-import { posService, type Product, type SaleRequest, } from '../../services/POSService';
+import { posService, type Product, type SaleRequest, type PaymentMethod, type IndividualPaymentMethod, } from '../../services/POSService';
 import { userService, type UserResponse } from "../../services/userService";
 import { cashRegisterService, type CashRegisterResponse } from "../../services/CashRegisterService";
 
 const { Title, Text } = Typography;
 const { Search } = Input;
-
-type PaymentMethod = 'EFECTIVO' | 'TRANSFERENCIA' | 'TARJETA' | 'MIXTO';
 
 interface CartItem {
     product: Product;
@@ -49,6 +47,7 @@ const POSPage = () => {
 
     const [loadingProducts, setLoadingProducts] = useState(false);
     const [previewVisible, setPreviewVisible] = useState(false);
+    const toCentsForDisplay = (amount: number) => Math.round(amount * 100);
 
     const [user, setUser] = useState<UserResponse | null>(null);
     const [loadingContext, setLoadingContext] = useState(true);
@@ -56,6 +55,26 @@ const POSPage = () => {
     const [submittingSale, setSubmittingSale] = useState(false);
     //ete es para el barcode search
     const searchInputRef = useRef<InputRef>(null);
+
+    const [mixedPayments, setMixedPayments] = useState<
+        Record<IndividualPaymentMethod, number>
+    >({
+        EFECTIVO: 0,
+        TRANSFERENCIA: 0,
+        TARJETA: 0,
+    });
+
+    const mixedPaymentTotal =
+        mixedPayments.EFECTIVO +
+        mixedPayments.TRANSFERENCIA +
+        mixedPayments.TARJETA;
+
+    const selectedPayments = (
+        Object.entries(mixedPayments) as [
+            IndividualPaymentMethod,
+            number
+        ][]
+    ).filter(([, amount]) => amount > 0);
 
     //y ete para enfocar el imput cuando se pone el pos
     useEffect(() => {
@@ -179,10 +198,47 @@ const POSPage = () => {
             return;
         }
 
+        // Trabajamos en centavos para evitar errores típicos de decimales.
+        const toCents = (amount: number) => Math.round(amount * 100);
+
+        let payments: SaleRequest['payments'];
+
+        if (paymentMethod === 'MIXTO') {
+            if (selectedPayments.length < 2) {
+                message.error(
+                    'Un pago mixto requiere al menos dos medios de pago.'
+                );
+                return;
+            }
+
+            const enteredTotal = selectedPayments.reduce(
+                (sum, [, amount]) => sum + toCents(amount),
+                0
+            );
+
+            if (enteredTotal !== toCents(total)) {
+                message.error(
+                    'Los importes de pago deben coincidir con el total de la venta.'
+                );
+                return;
+            }
+
+            payments = selectedPayments.map(([method, amount]) => ({
+                paymentMethod: method,
+                amount: Number(amount.toFixed(2)),
+            }));
+        } else {
+            payments = [{
+                paymentMethod: paymentMethod as IndividualPaymentMethod,
+                amount: Number(total.toFixed(2)),
+            }];
+        }
+
         const request: SaleRequest = {
             sucursalId: cashRegister.sucursalId,
             cashRegisterId: cashRegister.id,
             paymentMethod,
+            payments,
             details: cart.map((item) => ({
                 productId: item.product.id,
                 quantity: item.quantity,
@@ -201,8 +257,12 @@ const POSPage = () => {
             setCart([]);
             setPreviewVisible(false);
             setPaymentMethod('EFECTIVO');
+            setMixedPayments({
+                EFECTIVO: 0,
+                TRANSFERENCIA: 0,
+                TARJETA: 0,
+            });
 
-            //actualizar la lista por si hubo cambios en los productos.
             await searchProducts(query);
         } catch (error) {
             console.error('Error al registrar la venta:', error);
@@ -346,9 +406,7 @@ const POSPage = () => {
                 </Title>
             </Space>
 
-            <Text type="secondary">
-                Buscá productos y agregalos a la venta.
-            </Text>
+            
 
             <Row gutter={[16, 16]} style={{ marginTop: 24 }}>
                 <Col xs={24} xl={14}>
@@ -443,13 +501,86 @@ const POSPage = () => {
                                 { value: 'MIXTO', label: 'Pago mixto' },
                             ]}
                         />
+                        {paymentMethod === 'MIXTO' && (
+                            <Card
+                                size="small"
+                                title="Distribución del pago"
+                                style={{ marginTop: 12 }}
+                            >
+                                {(
+                                    [
+                                        ['EFECTIVO', 'Efectivo'],
+                                        ['TRANSFERENCIA', 'Transferencia'],
+                                        ['TARJETA', 'Tarjeta'],
+                                    ] as [IndividualPaymentMethod, string][]
+                                ).map(([method, label]) => (
+                                    <Row
+                                        key={method}
+                                        align="middle"
+                                        justify="space-between"
+                                        style={{ marginBottom: 12 }}
+                                    >
+                                        <Col>{label}</Col>
+                                        <Col>
+                                            <InputNumber
+                                                min={0}
+                                                precision={2}
+                                                step={100}
+                                                value={mixedPayments[method]}
+                                                prefix="$"
+                                                style={{ width: 160 }}
+                                                onChange={(value) =>
+                                                    setMixedPayments((current) => ({
+                                                        ...current,
+                                                        [method]: value ?? 0,
+                                                    }))
+                                                }
+                                            />
+                                        </Col>
+                                    </Row>
+                                ))}
+
+                                <Divider />
+
+                                <Row justify="space-between">
+                                    <Text>Importe distribuido</Text>
+                                    <Text strong>
+                                        {formatCurrency(mixedPaymentTotal)}
+                                    </Text>
+                                </Row>
+
+                                <Row justify="space-between">
+                                    <Text>Restante</Text>
+                                    <Text
+                                        type={
+                                            toCentsForDisplay(mixedPaymentTotal) ===
+                                                toCentsForDisplay(total)
+                                                ? 'success'
+                                                : 'danger'
+                                        }
+                                    >
+                                        {formatCurrency(total - mixedPaymentTotal)}
+                                    </Text>
+                                </Row>
+                            </Card>
+                        )}
 
                         <Button
                             type="primary"
                             size="large"
                             block
                             style={{ marginTop: 16 }}
-                            disabled={cart.length === 0}
+                            disabled={
+                                cart.length === 0 ||
+                                (
+                                    paymentMethod === 'MIXTO' &&
+                                    (
+                                        selectedPayments.length < 2 ||
+                                        toCentsForDisplay(mixedPaymentTotal) !==
+                                        toCentsForDisplay(total)
+                                    )
+                                )
+                            }
                             onClick={() => setPreviewVisible(true)}
                         >
                             Revisar venta
@@ -539,9 +670,41 @@ const POSPage = () => {
                         <Text type="secondary">Medio de pago</Text>
                     </Col>
                     <Col>
-                        <Text>{paymentMethod}</Text>
+                        <Text>
+                            {{
+                                EFECTIVO: 'Efectivo',
+                                TRANSFERENCIA: 'Transferencia',
+                                TARJETA: 'Tarjeta',
+                                MIXTO: 'Pago mixto',
+                            }[paymentMethod]}
+                        </Text>
                     </Col>
                 </Row>
+
+                {paymentMethod === 'MIXTO' && (
+                    <div style={{ marginTop: 12 }}>
+                        {selectedPayments.map(([method, amount]) => (
+                            <Row
+                                key={method}
+                                justify="space-between"
+                                style={{ marginBottom: 6 }}
+                            >
+                                <Col>
+                                    <Text type="secondary">
+                                        {{
+                                            EFECTIVO: 'Efectivo',
+                                            TRANSFERENCIA: 'Transferencia',
+                                            TARJETA: 'Tarjeta',
+                                        }[method]}
+                                    </Text>
+                                </Col>
+                                <Col>
+                                    <Text>{formatCurrency(amount)}</Text>
+                                </Col>
+                            </Row>
+                        ))}
+                    </div>
+                )}
             </Modal>
         </div>
     );

@@ -1,5 +1,22 @@
 import { axiosClient } from './axiosClient';
 
+export type PaymentMethod =
+    | 'EFECTIVO'
+    | 'TRANSFERENCIA'
+    | 'TARJETA'
+    | 'MIXTO';
+
+export type IndividualPaymentMethod = Exclude<
+    PaymentMethod,
+    'MIXTO'
+>;
+
+export interface SalePaymentRequest {
+    paymentMethod: IndividualPaymentMethod;
+    amount: number;
+}
+
+
 export interface SaleDetailRequest {
     productId: number;
     quantity: number;
@@ -8,8 +25,12 @@ export interface SaleDetailRequest {
 export interface SaleRequest {
     sucursalId: number;
     cashRegisterId: number;
-    paymentMethod: 'EFECTIVO' | 'TRANSFERENCIA' | 'TARJETA' | 'MIXTO';
-    details: SaleDetailRequest[];
+    paymentMethod: PaymentMethod;
+    details: {
+        productId: number;
+        quantity: number;
+    }[];
+    payments: SalePaymentRequest[];
 }
 
 export interface SaleDetailResponse {
