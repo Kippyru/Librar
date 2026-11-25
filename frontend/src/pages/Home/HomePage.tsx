@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { CheckCircleFilled } from '@ant-design/icons';
 import { Typography } from 'antd';
 import { Space, Button } from 'antd';
+import { getUserRole } from '../../utils/auth';
 
 const { Title, Text } = Typography;
 
 const HomePage = () => {
+    const isAdmin = getUserRole() === 'ROLE_ADMIN';
     const navigate = useNavigate();
     return (
         <div style={{
@@ -17,6 +19,7 @@ const HomePage = () => {
             minHeight: '80vh',
             textAlign: 'center'
         }}>
+
             <CheckCircleFilled style={{ fontSize: '72px', color: '#52c41a', marginBottom: '16px' }} />
 
             <Title level={2} style={{ margin: 0, color: '#262626' }}>
@@ -54,6 +57,15 @@ const HomePage = () => {
                 <Button size="large" onClick={() => navigate('/pos')}>
                     POS
                 </Button>
+                {isAdmin && (
+                    <Button
+                        type="primary"
+                        size="large"
+                        onClick={() => navigate('/reports')}
+                    >
+                        Reportes
+                    </Button>
+                )}
             </Space>
         </div>
     );

@@ -9,6 +9,8 @@ import CashPage from '../pages/Cash/CashPage';
 import POSPage from '../pages/POS/POSPage';
 import SupplierPage from '../pages/Supplier/SupplierPage'; // <--- Importamos Proveedores
 import CategoryPage from '../pages/Category/CategoryPage'; // <--- Importamos Categorías
+import { AdminRoute } from './AdminRoute';
+import ReportsPage from '../pages/Reports/ReportsPage';
 
 const NotFound = () => <h2>404 - Página no encontrada</h2>;
 
@@ -23,7 +25,7 @@ export const router = createBrowserRouter([
         element: <RegisterPage />,
     },
 
-    // protected routes
+    // Protected routes
     {
         element: <ProtectedRoute />,
         children: [
@@ -54,6 +56,17 @@ export const router = createBrowserRouter([
             {
                 path: '/categories',
                 element: <CategoryPage />,
+            },
+
+            // Admin-only routes
+            {
+                element: <AdminRoute />,
+                children: [
+                    {
+                        path: '/reports',
+                        element: <ReportsPage />,
+                    },
+                ],
             },
         ],
     },
