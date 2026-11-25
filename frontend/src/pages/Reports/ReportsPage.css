@@ -1,0 +1,54 @@
+.reports-page {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding-bottom: 32px;
+}
+
+.reports-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.reports-header h2 {
+    margin-bottom: 4px;
+}
+
+.reports-filters {
+    margin-bottom: 28px;
+}
+
+.reports-section {
+    margin-top: 24px;
+}
+
+.reports-section .ant-card-head {
+    flex-wrap: wrap;
+}
+
+.reports-section .ant-card-extra {
+    margin-inline-start: auto;
+}
+
+@media (max-width: 576px) {
+    .reports-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .reports-header button {
+        width: 100%;
+    }
+
+    .reports-section .ant-card-head {
+        align-items: flex-start;
+    }
+
+    .reports-section .ant-card-extra {
+        margin-inline-start: 0;
+        padding: 0 0 16px;
+    }
+}
